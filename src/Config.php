@@ -3,7 +3,6 @@
 namespace Rareloop\Lumberjack;
 
 use Illuminate\Support\Arr;
-use Symfony\Component\Finder\Finder;
 
 class Config
 {
@@ -30,13 +29,12 @@ class Config
 
     public function load(string $path) : Config
     {
-        $finder = new Finder();
-        $finder->files()->in($path)->name('/\.php$/');
+        $files = glob($path . '/*.php');
 
-        foreach ($finder as $file) {
-            $configData = include $file->getRealPath();
+        foreach ($files as $file) {
+            $configData = include $file;
 
-            $this->data[$file->getBasename('.php')] = $configData;
+            $this->data[pathinfo($file)['filename']] = $configData;
         }
 
         return $this;
