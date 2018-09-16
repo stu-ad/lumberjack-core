@@ -17,19 +17,26 @@ class RouterServiceProvider extends ServiceProvider
         $this->app->bind(Router::class, $router);
     }
 
+    /**
+     * SM - 16/9/18 anonymous closure passed to add_action in boot method causes phpunit fatal error
+     * changed to call getAndProcessRequest instead.
+     */
     public function boot()
     {
-        add_action('wp_loaded', function () {
-            $request = ServerRequestFactory::fromGlobals(
-                $_SERVER,
-                $_GET,
-                $_POST,
-                $_COOKIE,
-                $_FILES
-            );
+        add_action('wp_loaded', [$this, 'getAndProcessRequest']);
+    }
 
-            $this->processRequest($request);
-        });
+    public function getAndProcessRequest()
+    {
+        $request = ServerRequestFactory::fromGlobals(
+            $_SERVER,
+            $_GET,
+            $_POST,
+            $_COOKIE,
+            $_FILES
+        );
+
+        $this->processRequest($request);
     }
 
     private function getBasePathFromWPConfig()
